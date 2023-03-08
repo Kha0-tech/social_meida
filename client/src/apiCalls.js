@@ -1,7 +1,7 @@
 const url = "http://localhost:8000/api/v1"
 
 export const userRegister = async(name,email,password) => {
-    const res=await fetch(`${url}/users/register`,{
+    const res=await fetch(`${url}/register`,{
         method : "post",
         headers: {
             "Content-Type" : "application/json"
@@ -16,7 +16,7 @@ export const userRegister = async(name,email,password) => {
 }
 
 export const userLogin = async(email,password) => {
-    const res = await fetch(`${url}/users/login`,{
+    const res = await fetch(`${url}/login`,{
         method : "post",
         headers : {"Content-Type" : "application/json"},
         body : JSON.stringify({
@@ -24,6 +24,50 @@ export const userLogin = async(email,password) => {
         })
         
     })
-    const user =res.json()
+    
+    if(!res.ok) {
+        const user =await res.json();
+        return user
+    }
+    const token = await res.text();
+    localStorage.setItem("token",token);
+    return token
+    
+}
+
+export const followToggle = async (id) => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${url}/users/${id}/follow`,{
+        method : "put",
+        headers : {
+            Authorization : `Baerer ${token}`
+        }
+    });
+    if(!res.ok) return false;
+    const user = res.json()
+    return user;
+
+}
+
+export const verify = async() => {
+    const token = localStorage.getItem("token")
+    
+    const res = await fetch(`${url}/users/verify`,{
+        headers : {
+            Authorization : `Bearer ${token}`
+        }
+    })
+    
+    if(!res.ok) return false;
+    const user = await res.json();
+    
+    return user;
+}
+
+export const getUser = async(handle) => {
+    const res = await fetch(`${url}/users/${handle}`);
+    if(!res.ok) return false
+    const user =await res.json()
+    console.log("get user => ",user)
     return user ;
 }

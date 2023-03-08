@@ -11,6 +11,6 @@ app.use(cors())
 
 const userRouter = require("./routes/userRouter")
 
-app.use("/api/v1/users",userRouter)
+app.use("/api/v1",userRouter)
 
 app.listen(process.env.PORT,console.log("server is running 8000"))

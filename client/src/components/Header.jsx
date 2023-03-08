@@ -1,16 +1,41 @@
 import React, { Fragment, useState } from 'react'
-import {AppBar, Avatar, Badge, Box, IconButton, InputBase, Menu, MenuItem, Paper, TextField, Toolbar, Typography} from "@mui/material"
+import {
+  AppBar,
+  Avatar, 
+  Badge, 
+  Box, Button,
+  IconButton,
+  InputBase, 
+  Menu, MenuItem, 
+  Paper, 
+  TextField,
+  Toolbar, 
+  Typography,
+  Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText 
+} from "@mui/material"
 import AdbIcon from '@mui/icons-material/Adb';
 import SearchIcon from '@mui/icons-material/Search';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import { Outlet } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthProvider';
+
 
 
 const Header = () => {
-  const [open,setOpen] = useState(null)
+  const navigate = useNavigate()
+  const [anchorEl,setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  }
+  const handleClose = () => setAnchorEl(null)
+  const {auth,setAuth,authUser,setAuthUser} =useAuth()
+  
   return (
     <Fragment>
       <AppBar position='sticky'>
@@ -26,10 +51,17 @@ const Header = () => {
               alignItems : "center"
             }}
           >
-            <AdbIcon fontSize='large' />
+            <AdbIcon 
+              onClick={() => {
+                navigate("/")
+              }} 
+              fontSize='large' 
+            />
             <Typography 
               variant='h6'
-              href='/'
+              onClick={() => {
+                navigate("/")
+              }} 
               color= "inherit"
               sx={{
                 ml : 2,
@@ -52,38 +84,83 @@ const Header = () => {
               <SearchIcon/>
             </IconButton>
           </Paper>
-          <Box 
-              sx={{
-                display : {xs : "none" ,md : "flex"}
-            }}  
-            >
-            <IconButton size='large'>
-              <Badge badgeContent={5} color="error">
-                <MailIcon/>
-              </Badge>
-            </IconButton>
-            <IconButton size='large'>
-              <Badge badgeContent={5} color="error">
-                <NotificationsIcon/>
-              </Badge>
-            </IconButton>
-            <IconButton>
-              <Avatar/>
-            </IconButton>
-          </Box>
-          <Box
-            sx={{
-              display : {xs : "flex",md :"none"}
-            }}
-          >
-            <IconButton size='large' color='inherit'>
-              <MoreIcon/>
-            </IconButton>
-          </Box>
+          {auth === true ? (
+            <Box>
+              <Box 
+                sx={{
+                  display : {xs : "none" ,md : "flex"}
+              }}  
+              >
+                <IconButton size='large'>
+                  <Badge badgeContent={5} color="error">
+                    <MailIcon/>
+                  </Badge>
+                </IconButton>
+                <IconButton size='large'>
+                  <Badge badgeContent={5} color="error">
+                    <NotificationsIcon/>
+                  </Badge>
+                </IconButton>
+                <IconButton
+
+                  onClick={handleClick}
+                >
+                  <Avatar/>
+                </IconButton>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                >
+                  <MenuItem 
+                    onClick={(e) => {
+                      handleClose()
+                      e.preventDefault()
+                      navigate(`/@/${authUser.handle}`)
+                    }}
+                  >Profile</MenuItem>
+                  <MenuItem onClick={() => {
+                    handleClose()
+                    setAuth(false)
+                    setAuthUser(null)
+                    localStorage.removeItem("token")
+                    navigate("/")
+                  }}>Logout</MenuItem>
+                </Menu>
+              </Box>
+              <Box
+                  sx={{
+                    display : {xs : "flex",md :"none"}
+                  }}
+                >
+                <IconButton size='large' color='inherit'>
+                  <MoreIcon/>
+                </IconButton>
+              </Box>
+            </Box>
+          ) : (
+            <Box>
+              <Button onClick={e => {
+                e.preventDefault();
+                navigate("/sign-in")
+              }} variant='text' sx={{color : "white",textTransform : "inherit"}}>
+                Sign In
+              </Button>
+            
+              <Button onClick={e => {
+                e.preventDefault();
+                navigate("/sign-up")
+              }} variant='text' sx={{color : "white",textTransform : "inherit"}}>
+                Sign Up
+              </Button>
+            </Box>
+          )}
+          
           
         </Toolbar>
       </AppBar>
-      <Outlet/>
+      
     </Fragment>
   )
 }

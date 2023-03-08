@@ -41,7 +41,7 @@ const SignUp = () => {
         <TextField label="Name" size='small' fullWidth inputRef={name}/>
         <TextField label="Email" type={"email"} size='small' fullWidth inputRef={email}/>
         <TextField label="Password"type={"password"} size='small' fullWidth inputRef={password}/>
-        <Button variant='contained' type='submit' sx={{width : 100}}>Sign Up</Button>
+        <Button variant='contained' type='submit' sx={{width : 100,textTransform: "inherit"}}>Sign Up</Button>
       </Box>
     </Container>
   )
