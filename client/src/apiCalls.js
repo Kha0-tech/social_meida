@@ -35,7 +35,7 @@ export const userLogin = async(email,password) => {
     
 }
 
-export const followToggle = async (id) => {
+export const follow = async (id) => {
     const token = localStorage.getItem("token");
     const res = await fetch(`${url}/users/${id}/follow`,{
         method : "put",
@@ -48,6 +48,7 @@ export const followToggle = async (id) => {
     return user;
 
 }
+
 
 export const verify = async() => {
     const token = localStorage.getItem("token")
@@ -68,6 +69,5 @@ export const getUser = async(handle) => {
     const res = await fetch(`${url}/users/${handle}`);
     if(!res.ok) return false
     const user =await res.json()
-    console.log("get user => ",user)
     return user ;
 }

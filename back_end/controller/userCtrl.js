@@ -90,62 +90,76 @@ const getUser = async(req,res) => {
             },
         },
     ]).toArray()
+    console.log("getUser =>",getUser)
     if(user) res.json(user[0])
     else res.status(500).json(user)
 }
 
-const toggleFollow = async(req,res) => {
-    const authId = await res.locals.user._id;
-    
-    const targetId = req.params.id;
-    
-    const authUser = await db.collection("users").findOne({_id : new ObjectId(authId)});
-    authUser.following = authUser.following || [];
-    
-    const targetUser = await db.collection("users").findOne({_id : new ObjectId(targetId)});
-    targetUser.followers = targetUser.followers || []
-    
-    //const targetUserFollower = targetUser.followers.find(item => item.toString() === authId)
-    
-
-    if(targetUser.followers.find(item => item.toString () === authId)){
-        targetUser.followers = targetUser.followers.filter( 
-            uid =>  uid.toString() !== authId
-        )
-
-        authUser.following = authUser.following.filter(
-            uid  => uid.toString() !== targetId
-        )
-    }else{
-        targetUser.followers.push(new ObjectId(authId));
-        authUser.following.push(new ObjectId(targetId))
-    }
-
+const follow = async(req,res) => {
     try{
-        await db.collection("users").updateOne(
-            {_id : new ObjectId(authId)},
-            {
-                $set : {following : authUser.following}
-            }
-        );
-
-        await db.collection("users").updateOne(
-            {_id : new ObjectId(targetId)},
-            {
-                $set : {followers : targetUser.followers}
-            }
-        );
-
-        return res.status(200).json({
-            followers : targetUser.followers,
-            following : authUser.following
-        })
-
-    }catch(e){
-        return res.status(500).json({msg : e.message})
-    }
+        const authId = await res.locals.user._id;
     
+        const targetId = req.params.id;
+        
+        const authUser = await db.collection("users").findOne({_id : new ObjectId(authId)});
+        authUser.following = authUser.following || [];
+        
+        const targetUser = await db.collection("users").findOne({_id : new ObjectId(targetId)});
+        targetUser.followers = targetUser.followers || []
+
+        if(authUser && targetUser){
+
+            const isAlreadyFollow = targetUser.followers.find(id => id.toString() === authUser._id.toString());
+            
+            if(isAlreadyFollow){
+                authUser.following = authUser.following.filter(id => id.toString() !== targetUser._id.toString());
+                targetUser.followers = targetUser.followers.filter(id => id.toString() !== authUser._id.toString());
+
+                await db.collection("users").updateOne(
+                    {_id : new ObjectId(authId)},
+                    {$set : {following : authUser.following}}
+                )
+
+                await db.collection("users").updateOne(
+                    {_id : new ObjectId(targetId)},
+                    {$set : {followers : targetUser.followers}}
+                )
+                res.status(200).json({
+                    following : authUser.following,
+                    followers : targetUser.followers
+                })
+
+            }else if(!isAlreadyFollow) {
+                
+                authUser.following.push(targetUser._id);
+                targetUser.followers.push(authUser._id);
+                
+                await db.collection("users").updateOne(
+                    {_id : new ObjectId(authId)},
+                    {
+                        $set : {following : authUser.following}
+                    }
+                )
+
+                await db.collection("users").updateOne(
+                    {_id : new ObjectId(targetId)},
+                    {$set : {followers : targetUser.followers}}
+                )
+                res.status(200).json({
+                    following  : authUser.following,
+                    followers  : targetUser.followers
+                })
+            }else{
+                res.json({msg : "Somthing is wrong !"})
+            }
+        }else{
+            res.status(400).json({msg :"Bad request follow"})
+        }
+    }catch(error){
+        res.json(error.message)
+    }    
 }
+
 
 
 
@@ -154,5 +168,6 @@ module.exports = {
     userLogin,
     verify,
     getUser,
-    toggleFollow,
+    follow,
+    // unfollow
 }

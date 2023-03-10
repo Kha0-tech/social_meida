@@ -1,10 +1,11 @@
+
 import { Box, Button } from '@mui/material'
 import React from 'react'
 import { useAuth } from '../AuthProvider'
-import { followToggle } from '../apiCalls'
-const FollowToggleButton = ({user}) => { 
+import { follow,unfollow } from '../apiCalls'
+const FollowUnfollowButton = ({user}) => { 
     const {authUser,setAuthUser} = useAuth();
-  return authUser.following && authUser.following.find(uid => uid === user._id) ? (
+  return authUser.following && authUser.following.find(uid => uid.toString() === user._id.toString()) ? (
     <Button
 
         variant='contained'
@@ -14,13 +15,14 @@ const FollowToggleButton = ({user}) => {
         }}
         onClick={() => {
             (async() => {
-                let result = await followToggle(user._id);
+                let result = await follow(user._id);
                 authUser.following = result.following;
+                console.log("authuser unfollow =>",authUser.following ,authUser.following.length)
                 setAuthUser({...authUser})
             })()
         }}
     >
-        Followed
+        Unfollow
     </Button>
   ): (
     <Button
@@ -31,8 +33,9 @@ const FollowToggleButton = ({user}) => {
         }}
         onClick={() => {
             (async() => {
-                let result = await followToggle(user._id);
-                authUser.following = result.following;
+                let result = await follow(user._id);
+                console.log("authuser follow =>",authUser.followers , authUser.followers.length)
+                authUser.followers = result.followers;
                 setAuthUser({...authUser})
                 
             })()
@@ -44,4 +47,5 @@ const FollowToggleButton = ({user}) => {
   
 }
 
-export default FollowToggleButton
+export default FollowUnfollowButton
+

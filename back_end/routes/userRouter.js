@@ -7,7 +7,8 @@ const {
     userLogin,
     verify,
     getUser,
-    toggleFollow
+    follow,
+    //unfollow
 } = require("./../controller/userCtrl");
 
 userRouter.post("/register",userRegister);
@@ -18,6 +19,7 @@ userRouter.get("/users/verify",auth,verify);
 
 userRouter.get("/users/:handle",getUser);
 
-userRouter.put("/users/:id/follow",auth,toggleFollow);
+userRouter.put("/users/:id/follow",auth,follow);
+
 
 module.exports = userRouter

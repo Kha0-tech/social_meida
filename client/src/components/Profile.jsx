@@ -3,6 +3,7 @@ import { useAuth } from '../AuthProvider';
 import {useNavigate,useParams} from "react-router-dom"
 import { useEffect, useState } from 'react';
 import { getUser } from '../apiCalls';
+import { Link } from 'react-router-dom';
 const Profile = () => {
   const navigate = useNavigate()
   const {auth,authUser} = useAuth();
@@ -104,7 +105,7 @@ const Profile = () => {
                 </ButtonGroup>
               </Box>
             </Box>
-        </Box>
+      </Box>
     </Container>
   )
 }

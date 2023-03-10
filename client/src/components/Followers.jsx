@@ -1,13 +1,16 @@
 import { Container,Box, Avatar, Button, Typography, Paper } from '@mui/material'
 import { useLocation } from 'react-router-dom'
-import { followToggle } from '../apiCalls';
+import { getUser } from '../apiCalls';
 import { useAuth } from '../AuthProvider';
-import FollowToggleButton from './FollowToggleButton';
+import FollowToggleButton from './FollowUnfollowButton';
+import { Link } from 'react-router-dom';
 const Followers = () => {
-    const location = useLocation();
-    const {users} = location.state
-    const {auth,authUser,setAuthUser} = useAuth()
-  return (
+  const location = useLocation();
+  const {users} = location.state;
+  console.log("users follower => ",users)
+  console.log("followers usres =>",users)
+  const {auth,setAuth,authUser,setAuthUser} = useAuth()
+  return ( auth && authUser ? (
     <Container maxWidth="md">
       <Typography variant='h5'>Followers  {users.length}</Typography>
       {users.map(user => (
@@ -28,18 +31,28 @@ const Followers = () => {
                 gap : 2
               }}
             >
-              <Avatar alt='F'/>
+              <Link to={`/@/${user.handle}`}>
+                <Avatar alt='F'/>
+              </Link>
+              
               <Typography>
                 {user.name}
               </Typography>
             </Box>
             <Box>
-              <FollowToggleButton user={user}/>
+              <FollowToggleButton user={user}/>          
             </Box>
         </Paper>
       ))}
         
     </Container >
+  ) : (
+    <Container maxWidth="md">
+      <Typography>You can login and register</Typography>
+      
+    </Container>
+  )
+    
   )
 }
 

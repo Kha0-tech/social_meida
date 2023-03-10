@@ -1,11 +1,13 @@
 import { Container,Box, Avatar, Button, Typography, Paper } from '@mui/material'
-import { useLocation } from 'react-router-dom'
-import FollowToggleButton from './FollowToggleButton';
-
+import { Link, useLocation } from 'react-router-dom'
+import FollowToggleButton from './FollowUnfollowButton';
+import { useAuth } from '../AuthProvider';
+import { follow, unfollow } from '../apiCalls';
+import FollowUnfollowButton from './FollowUnfollowButton';
 const Followings = () => {
     const location = useLocation();
     const {users} = location.state
-    console.log("following => ",users)
+    const {auth,setAuth,authUser,setAuthUser} = useAuth()
   return (
     <Container maxWidth="md">
       <Typography variant='h5'>Followings  {users.length}</Typography>
@@ -18,6 +20,7 @@ const Followings = () => {
             padding : 2,
             marginTop : 2
           }}
+          key={user._id}
         >
             <Box
               sx={{
@@ -26,13 +29,16 @@ const Followings = () => {
                 gap : 2
               }}
             >
-              <Avatar alt='F'/>
+              <Link to={`/@/${user.handle}`}>
+                <Avatar alt='F'/>
+              </Link>
+              
               <Typography>
-                {user.name}
+                {user.name} 
               </Typography>
             </Box>
             <Box>
-              <FollowToggleButton user={users}/>
+              <FollowUnfollowButton user={user}/>
             </Box>
         </Paper>
       ))}
